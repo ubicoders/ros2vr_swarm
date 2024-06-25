@@ -3,7 +3,7 @@ from typing import List
 import rclpy
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
-from ubi_vrobots_interface.msg import VRobotStates, VRobotCMD, Collision
+from ros2vr_interface.msg import VRobotStates, VRobotCMD, Collision
 import threading
 
 class VirtualRobotControlNode(Node):

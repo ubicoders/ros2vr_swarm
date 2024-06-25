@@ -9,7 +9,8 @@ import threading
 class VirtualRobotControlNode(Node):
     def __init__(self):
         super().__init__('vrobot_publisher')
-        self.sysId = 0
+        self.declare_parameter('sys_id', 0)
+        self.sysId = self.get_parameter('sys_id').get_parameter_value().integer_value
         self.state_subs= self.create_subscription(VRobotStates, f'/vrobot_states_{self.sysId}', self.controller, 10)
         self.cmd_pub_prefix = "/vrobot_cmd_pub_" # don't change this prefix.
         self.pub_cmd = self.create_publisher(VRobotCMD, f'{self.cmd_pub_prefix}_{self.sysId}', 10)
@@ -33,8 +34,9 @@ class VirtualRobotControlNode(Node):
         cmdMsg = VRobotCMD()
         cmdMsg.sys_id = self.sysId
         cmdMsg.header.stamp = self.get_clock().now().to_msg()
-        cmdMsg.cmd_id = 300
-        cmdMsg.int_arr = final_pwm
+        cmdMsg.cmd_id = 301
+        #cmdMsg.int_arr = final_pwm
+        cmdMsg.int_val = throttle
         self.pub_cmd.publish(cmdMsg)
 
 def main():

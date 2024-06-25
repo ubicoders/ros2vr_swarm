@@ -1,4 +1,6 @@
 from setuptools import find_packages, setup
+import glob
+import os
 
 package_name = 'ros2vr_swarm'
 
@@ -7,6 +9,7 @@ setup(
     version='0.0.0',
     packages=find_packages(exclude=['test']),
     data_files=[
+        ('share/' + package_name, glob.glob(os.path.join('launch', '*.launch.py'))),
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),

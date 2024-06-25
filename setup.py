@@ -20,6 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+             'vr_node = ros2vr_swarm.my_vr_node:main',
         ],
     },
 )

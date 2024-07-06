@@ -1,10 +1,7 @@
-import asyncio
 from typing import List
 import rclpy
-from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
 from ros2vr_interface.msg import VRobotStates, VRobotCMD, Collision
-import threading
 from ubicoders_vrobots.vrobots_msgs.VROBOTS_CMDS import VROBOTS_CMDS
 
 class VirtualRobotControlNode(Node):
@@ -15,11 +12,20 @@ class VirtualRobotControlNode(Node):
         self.sysId = self.get_parameter('sys_id').get_parameter_value().integer_value
         
         # subscriber
-        self.state_subs= self.create_subscription(VRobotStates, f'/vrobot_states_{self.sysId}', self.controller, 10)
+        self.state_subs = self.create_subscription(
+                                VRobotStates,                  # ROS2 topic type (message)
+                                f'/vrobot_states_{self.sysId}',# name of the topic
+                                self.controller,               # callback function
+                                10                             # QoS profile
+                            )
         
         # publisher
         self.cmd_pub_prefix = "/vrobot_cmd_pub_" # don't change this prefix.
-        self.pub_cmd = self.create_publisher(VRobotCMD, f'{self.cmd_pub_prefix}_{self.sysId}', 10)
+        self.pub_cmd = self.create_publisher(
+                            VRobotCMD,                            # ROS2 topic type (message)
+                            f'{self.cmd_pub_prefix}_{self.sysId}',# name of the topic
+                            10                                    # QoS profile
+                            )
         
         # mission specific variables
         self.checkpoints = set()
@@ -42,7 +48,6 @@ class VirtualRobotControlNode(Node):
         # Example: set all motors to 1510
         throttle = 1510
         final_pwm = [throttle, throttle, throttle, throttle]
-
 
         # publish control command    
         cmdMsg = VRobotCMD()

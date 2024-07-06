@@ -22,9 +22,9 @@ class VirtualRobotControlNode(Node):
         # publisher
         self.cmd_pub_prefix = "/vrobot_cmd_pub_" # don't change this prefix.
         self.pub_cmd = self.create_publisher(
-                            VRobotCMD,                            # ROS2 topic type (message)
-                            f'{self.cmd_pub_prefix}_{self.sysId}',# name of the topic
-                            10                                    # QoS profile
+                                VRobotCMD,                            # ROS2 topic type (message)
+                                f'{self.cmd_pub_prefix}_{self.sysId}',# name of the topic
+                                10                                    # QoS profile
                             )
         
         # mission specific variables

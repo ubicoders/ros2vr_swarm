@@ -28,7 +28,7 @@ class VirtualRobotControlNode(Node):
 
 
         # control logic goes here
-        throttle = 1510
+        throttle = 1501
 
         final_pwm = [throttle, throttle, throttle, throttle]
         # publish control command    

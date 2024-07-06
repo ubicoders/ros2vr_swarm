@@ -5,6 +5,7 @@ from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
 from ros2vr_interface.msg import VRobotStates, VRobotCMD, Collision
 import threading
+from ubicoders_vrobots.vrobots_msgs.VROBOTS_CMDS import VROBOTS_CMDS
 
 class VirtualRobotControlNode(Node):
     def __init__(self):
@@ -34,7 +35,7 @@ class VirtualRobotControlNode(Node):
         cmdMsg = VRobotCMD()
         cmdMsg.sys_id = self.sysId
         cmdMsg.header.stamp = self.get_clock().now().to_msg()
-        cmdMsg.cmd_id = 301
+        cmdMsg.cmd_id = VROBOTS_CMDS.SET_MR_THROTTLE
         #cmdMsg.int_arr = final_pwm
         cmdMsg.int_val = throttle
         self.pub_cmd.publish(cmdMsg)

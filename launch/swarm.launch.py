@@ -13,5 +13,5 @@ def generate_launch_description():
             name=f'vrobot_control_node_{i}',
             output='screen',
             parameters=[{'sys_id': i}]
-        ) for i in range(5)
+        ) for i in range(4)
     ])

@@ -3,6 +3,7 @@ import rclpy
 from rclpy.node import Node
 from ros2vr_interface.msg import VRobotStates, VRobotCMD, Collision
 from ubicoders_vrobots.vrobots_msgs.VROBOTS_CMDS import VROBOTS_CMDS
+import numpy as np
 
 class VirtualRobotControlNode(Node):
     def __init__(self):
@@ -30,25 +31,25 @@ class VirtualRobotControlNode(Node):
         # mission specific variables
         self.checkpoints = set()
 
+        # PI controllers
+        self.vel_pi_ctrl = PIController(kp=60, ki=2.5, error_max=100)
+        self.alt_pi_ctrl = PIController(kp=0.8, ki=0.01, error_max=100)
+
     def controller(self, statesMsg:VRobotStates):
-        # for collision checking        
-        colls:List[Collision] = statesMsg.collisions
-        for (i, coll) in enumerate(colls):
-            if (coll.collision_type ==1):
-                obj_name = coll.object_name
-                self.checkpoints.add(obj_name)
-        self._logger.info(f"Checkpoints: {self.checkpoints}")
+        # altitude control
+        current_altitude = -statesMsg.lin_pos.z # z axis down is positive
+        alt_setpoint = 20 # 20 meters above the ground
+        error_altitude = alt_setpoint - current_altitude # error is positive if below setpoint
+        velocity_setpoint = self.alt_pi_ctrl.update(error_altitude) # velocity setpoint, output of the alt - PI controller
+        velocity_setpoint = np.clip(velocity_setpoint, -10, 10)
+
+        # velocity control
+        vel_error = velocity_setpoint - (- statesMsg.lin_vel.z) # error is positive if below setpoint
+        throttle_sp =  self.vel_pi_ctrl.update(vel_error)
+        throttle = 1200 + throttle_sp
+        throttle = int(np.clip(throttle, 1200, 1600))
 
         #=========================
-        # Implement some cool control logic
-
-
-        #=========================
-
-        # Example: set all motors to 1510
-        throttle = 1510
-        final_pwm = [throttle, throttle, throttle, throttle]
-
         # publish control command    
         cmdMsg = VRobotCMD()
         cmdMsg.sys_id = self.sysId
@@ -56,6 +57,22 @@ class VirtualRobotControlNode(Node):
         cmdMsg.cmd_id = VROBOTS_CMDS.SET_MR_THROTTLE
         cmdMsg.int_val = throttle
         self.pub_cmd.publish(cmdMsg)
+
+
+class PIController:
+    def __init__(self, kp=1, ki=1, error_max=100):
+        self.kp = kp
+        self.ki = ki
+        self.integral = 0
+        self.error_max = error_max
+
+    def error_integrator(self, error):
+        self.integral += error
+        self.integral = np.clip(self.integral, -self.error_max, self.error_max)
+    
+    def update(self, error):
+        self.error_integrator(error)
+        return self.kp * error + self.ki * self.integral
 
 def main():
     rclpy.init()

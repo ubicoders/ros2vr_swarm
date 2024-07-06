@@ -33,17 +33,22 @@ class VirtualRobotControlNode(Node):
                 self.checkpoints.add(obj_name)
         self._logger.info(f"Checkpoints: {self.checkpoints}")
 
+        #=========================
+        # Implement some cool control logic
 
-        # control logic goes here
+
+        #=========================
+
+        # Example: set all motors to 1510
         throttle = 1510
-
         final_pwm = [throttle, throttle, throttle, throttle]
+
+
         # publish control command    
         cmdMsg = VRobotCMD()
         cmdMsg.sys_id = self.sysId
         cmdMsg.header.stamp = self.get_clock().now().to_msg()
-        cmdMsg.cmd_id = 301
-        #cmdMsg.int_arr = final_pwm
+        cmdMsg.cmd_id = VROBOTS_CMDS.SET_MR_THROTTLE
         cmdMsg.int_val = throttle
         self.pub_cmd.publish(cmdMsg)
 

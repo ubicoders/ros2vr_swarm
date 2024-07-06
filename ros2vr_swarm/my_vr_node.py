@@ -10,11 +10,18 @@ from ubicoders_vrobots.vrobots_msgs.VROBOTS_CMDS import VROBOTS_CMDS
 class VirtualRobotControlNode(Node):
     def __init__(self):
         super().__init__('vrobot_publisher')
+        # get system id
         self.declare_parameter('sys_id', 0)
         self.sysId = self.get_parameter('sys_id').get_parameter_value().integer_value
+        
+        # subscriber
         self.state_subs= self.create_subscription(VRobotStates, f'/vrobot_states_{self.sysId}', self.controller, 10)
+        
+        # publisher
         self.cmd_pub_prefix = "/vrobot_cmd_pub_" # don't change this prefix.
         self.pub_cmd = self.create_publisher(VRobotCMD, f'{self.cmd_pub_prefix}_{self.sysId}', 10)
+        
+        # mission specific variables
         self.checkpoints = set()
 
     def controller(self, statesMsg:VRobotStates):
@@ -28,14 +35,14 @@ class VirtualRobotControlNode(Node):
 
 
         # control logic goes here
-        throttle = 1501
+        throttle = 1510
 
         final_pwm = [throttle, throttle, throttle, throttle]
         # publish control command    
         cmdMsg = VRobotCMD()
         cmdMsg.sys_id = self.sysId
         cmdMsg.header.stamp = self.get_clock().now().to_msg()
-        cmdMsg.cmd_id = VROBOTS_CMDS.SET_MR_THROTTLE
+        cmdMsg.cmd_id = 301
         #cmdMsg.int_arr = final_pwm
         cmdMsg.int_val = throttle
         self.pub_cmd.publish(cmdMsg)
